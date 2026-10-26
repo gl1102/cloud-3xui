@@ -57,7 +57,23 @@ flowchart TD
 | Nó | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Painel | `https://panel.mallow.ccwu.cc/panel`（nome de usuário `admin`） |
 
-> ⚠️ Os domínios acima são exemplos — substitua-os pelo seu próprio domínio.
+> ⚠️ Os domínios acima são exemplos. Para alterá-los, edite as variáveis `VLESS_HOST` / `PANEL_HOST` em Settings → Secrets and variables → Actions → Variables — não é preciso editar o arquivo do workflow.
+
+## Configuração de domínio
+
+Os domínios do nó e do painel ficam em variáveis do GitHub — não é preciso editar o arquivo do workflow:
+
+| Variável | Valor de exemplo | Descrição |
+|----------|------------------|-----------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Endereço do nó (nome de host completo) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Endereço do painel (nome de host completo) |
+
+**Como alterar**: vá em **Settings** → **Secrets and variables** → **Actions** → a aba **Variables** → **New repository variable**, e preencha o nome e o valor. A alteração vale a partir da próxima execução do workflow.
+
+**Três pontos a observar**:
+- Cada variável contém o **nome de host completo** (incluindo o prefixo do subdomínio), então o nó e o painel podem apontar para domínios diferentes — não precisam compartilhar o mesmo domínio pai
+- Os valores devem corresponder aos nomes de host públicos (Public Hostnames) criados no túnel do Cloudflare no passo 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053); se não corresponderem, o link não vai funcionar
+- Se uma variável não estiver definida, o banner mostra um marcador para aquele item (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Etapas detalhadas de configuração
 
@@ -112,7 +128,7 @@ Etapas detalhadas:
 2. Copie o UUID gerado (por exemplo, `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Guarde bem este UUID** — ele não aparece em texto puro nos logs do workflow, e você precisará dele toda vez que montar o link do nó
 
-### Etapa 3: Adicionar Secrets no GitHub
+### Etapa 3: Adicionar Secrets e Variables no GitHub
 
 1. Abra este repositório e clique na aba **Settings**
 2. À esquerda, **Secrets and variables** → **Actions**
@@ -123,6 +139,13 @@ Etapas detalhadas:
    | `CF_TUNNEL_TOKEN` | Tunnel Token copiado na etapa 1 | Credencial do túnel Cloudflare |
    | `PANEL_PASSWORD` | A senha do painel definida por você | Senha de login do painel 3x-ui |
    | `VLESS_UUID` | UUID gerado na etapa 2 | UUID do nó, fixo e imutável |
+
+4. Mude para a aba **Variables**, clique em **New repository variable** e adicione duas variáveis (veja a seção Configuração de domínio acima):
+
+   | Name | Valor | Descrição |
+   |------|-------|-----------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Endereço do nó |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Endereço do painel |
 
 ### Etapa 4: Executar o workflow
 
@@ -163,7 +186,7 @@ Etapas detalhadas:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Copie o link `vless://` e substitua `YOUR_UUID` pelo seu próprio UUID
+3. Copie o link `vless://` e substitua `YOUR_UUID` pelo seu próprio UUID (O domínio já é o real, vindo das suas variáveis — não precisa substituí-lo.)
 4. Cole em v2rayN / v2rayNG / Streisand / NekoBox ou outro cliente e já pode usar
 
 ### Etapa 6: Verificar a renovação automática (opcional)
@@ -191,6 +214,9 @@ Etapas detalhadas:
 
 **P: O UUID do link do nó aparece como `***` no log?**
 R: Este é o mecanismo de proteção de secrets do GitHub. Substitua `YOUR_UUID` pelo UUID que você mesmo preencheu no secret `VLESS_UUID`.
+
+**P: O domínio aparece como `YOUR_DOMAIN` no log?**
+R: Vá em Settings → Secrets and variables → Actions → Variables e crie as variáveis `VLESS_HOST` / `PANEL_HOST` com os nomes de host completos; confira se correspondem aos nomes de host públicos do seu túnel do Cloudflare.
 
 **P: O teste do cliente falha (-1)?**
 R: Verifique três pontos: ① se o UUID foi substituído corretamente; ② se a versão do cliente está atualizada (v2rayN 7.x+); ③ se o túnel do Cloudflare está conectado normalmente (veja o log).
