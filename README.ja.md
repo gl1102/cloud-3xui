@@ -58,7 +58,23 @@ flowchart TD
 | ノード | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | パネル | `https://panel.mallow.ccwu.cc/panel`（ユーザー名 `admin`） |
 
-> ⚠️ 上記のドメインは例です。ご自身のドメインに置き換えてください。
+> ⚠️ 上記のドメインは例です。変更するには、Settings → Secrets and variables → Actions → Variables で `VLESS_HOST` / `PANEL_HOST` の 2 つの変数を編集してください。ワークフローファイルを編集する必要はありません。
+
+## ドメイン設定
+
+ノードとパネルのドメインは GitHub 変数に保存されており、ワークフローファイルを編集する必要はありません。
+
+| 変数 | 例 | 説明 |
+|------|----|------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | ノードのアドレス（完全なホスト名） |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | パネルのアドレス（完全なホスト名） |
+
+**変更方法**：**Settings** → **Secrets and variables** → **Actions** → **Variables** タブ → **New repository variable** から、名前と値を入力します。変更は次回のワークフロー実行から有効になります。
+
+**注意点（3つ）**：
+- 各変数には**完全なホスト名**（サブドメインのプレフィックスを含む）が入るため、ノードとパネルは別々のドメインを指すことができ、同じ親ドメインである必要はありません
+- 値は、ステップ 1 で Cloudflare トンネルに作成したパブリックホスト名（Public Hostname）と一致させる必要があります（`vless` → 127.0.0.1:8080、`panel` → 127.0.0.1:2053）。一致しないとリンクは使えません
+- 変数が設定されていない場合、バナーにはその項目のプレースホルダー（`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`）が表示されます
 
 ## 詳細な設定手順
 
@@ -117,7 +133,7 @@ flowchart TD
 2. 生成された UUID をコピーします（例：`cbfc229f-9d34-4fef-9990-8baa82a7327b`）
 3. **この UUID は必ずメモしてください**。ワークフローのログには平文で表示されません。ノードリンクを組み立てるたびに必要になります
 
-### ステップ3：GitHub に Secrets を追加
+### ステップ3：GitHub に Secrets と Variables を追加
 
 1. このリポジトリを開き、**Settings** タブをクリックします
 2. 左側の **Secrets and variables** → **Actions** に入ります
@@ -128,6 +144,13 @@ flowchart TD
    | `CF_TUNNEL_TOKEN` | ステップ1でコピーした Tunnel Token | Cloudflare トンネルの認証情報 |
    | `PANEL_PASSWORD` | ご自身で設定したパネルパスワード | 3x-ui パネルのログインパスワード |
    | `VLESS_UUID` | ステップ2で生成した UUID | ノードの UUID、変更しません |
+
+4. **Variables** タブに切り替え、**New repository variable** をクリックして、2 つの変数を追加します（上記の「ドメイン設定」セクションを参照）：
+
+   | Name | 値 | 説明 |
+   |------|----|------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | ノードのアドレス |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | パネルのアドレス |
 
 ### ステップ4：ワークフローを実行
 
@@ -163,7 +186,7 @@ flowchart TD
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. `vless://` リンクをコピーし、`YOUR_UUID` をご自身の UUID に置き換えます
+3. `vless://` リンクをコピーし、`YOUR_UUID` をご自身の UUID に置き換えます （ドメインは変数から取得した実際のものなので、置き換える必要はありません。）
 4. v2rayN / v2rayNG / Streisand / NekoBox などのクライアントに貼り付ければ使えます
 
 ### ステップ6：自動復旧の確認（任意）
@@ -191,6 +214,9 @@ flowchart TD
 
 **Q: ログ中のノードリンクの UUID が `***` と表示されるのは？**
 A: GitHub の secret 保護機能によるものです。`YOUR_UUID` を、`VLESS_UUID` secret に設定したご自身の UUID に置き換えてください。
+
+**Q: ログ中のドメインが `YOUR_DOMAIN` と表示されるのは？**
+A: Settings → Secrets and variables → Actions → Variables で、完全なホスト名を指定して `VLESS_HOST` / `PANEL_HOST` の 2 つの変数を作成してください。Cloudflare トンネルのパブリックホスト名と一致していることを確認してください。
 
 **Q: クライアントのテストが通らない（-1）のは？**
 A: 3点を確認してください：① UUID が正しく置き換えられているか；② クライアントのバージョンが十分新しいか（v2rayN 7.x 以上）；③ Cloudflare トンネルが正常に接続されているか（ログを確認）。
