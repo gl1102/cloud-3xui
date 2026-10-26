@@ -57,7 +57,23 @@ flowchart TD
 | Node | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Bảng điều khiển | `https://panel.mallow.ccwu.cc/panel`（tên đăng nhập `admin`） |
 
-> ⚠️ Các tên miền ở trên chỉ là ví dụ, hãy thay bằng tên miền của bạn.
+> ⚠️ Các tên miền ở trên chỉ là ví dụ. Để đổi, hãy sửa hai biến `VLESS_HOST` / `PANEL_HOST` trong Settings → Secrets and variables → Actions → Variables — không cần sửa file workflow.
+
+## Cấu hình tên miền
+
+Tên miền của node và panel nằm trong biến GitHub — không cần sửa file workflow:
+
+| Biến | Giá trị ví dụ | Mô tả |
+|------|---------------|-------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Địa chỉ node (tên host đầy đủ) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Địa chỉ panel (tên host đầy đủ) |
+
+**Cách đổi**: vào **Settings** → **Secrets and variables** → **Actions** → tab **Variables** → **New repository variable**, rồi điền tên và giá trị. Thay đổi có hiệu lực từ lần chạy workflow tiếp theo.
+
+**Ba lưu ý**:
+- Mỗi biến chứa **tên host đầy đủ** (gồm cả tiền tố subdomain), vì vậy node và panel có thể trỏ tới các tên miền khác nhau — không nhất thiết phải chung một tên miền cha
+- Giá trị phải khớp với Public Hostname bạn đã tạo trong tunnel Cloudflare ở bước 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), nếu không link sẽ không hoạt động
+- Nếu một biến chưa được đặt, banner sẽ hiển thị chỗ giữ chỗ cho mục đó (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Các Bước Cấu Hình Chi Tiết
 
@@ -116,7 +132,7 @@ Các bước chi tiết:
 2. Sao chép UUID được tạo (dạng như `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Hãy ghi nhớ UUID này**, nhật ký workflow sẽ không hiển thị nó dưới dạng văn bản thuần, mỗi lần ghép liên kết node đều cần dùng đến nó
 
-### Bước 3: Thêm Secrets vào GitHub
+### Bước 3: Thêm Secrets và Variables vào GitHub
 
 1. Vào kho này, nhấn tab **Settings**
 2. Bên trái **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Các bước chi tiết:
    | `CF_TUNNEL_TOKEN` | Tunnel Token đã sao chép ở bước 1 | Thông tin xác thực tunnel Cloudflare |
    | `PANEL_PASSWORD` | Mật khẩu bảng điều khiển bạn đặt | Mật khẩu đăng nhập bảng 3x-ui |
    | `VLESS_UUID` | UUID đã tạo ở bước 2 | UUID của node, cố định không đổi |
+
+4. Chuyển sang tab **Variables**, nhấn **New repository variable** và thêm hai biến (xem mục Cấu hình tên miền ở trên):
+
+   | Name | Giá trị | Mô tả |
+   |------|---------|------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Địa chỉ node |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Địa chỉ panel |
 
 ### Bước 4: Chạy Workflow
 
@@ -167,7 +190,7 @@ Các bước chi tiết:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Sao chép liên kết `vless://`, thay `YOUR_UUID` bằng UUID của bạn
+3. Sao chép liên kết `vless://`, thay `YOUR_UUID` bằng UUID của bạn (Tên miền đã là tên miền thật lấy từ biến của bạn — không cần thay.)
 4. Dán vào các ứng dụng khách như v2rayN / v2rayNG / Streisand / NekoBox là dùng được
 
 ### Bước 6: Xác Minh Tự Động Gia Hạn (tùy chọn)
@@ -195,6 +218,9 @@ Các bước chi tiết:
 
 **H: UUID trong liên kết node ở nhật ký hiển thị `***`?**
 Đ: Đây là cơ chế bảo vệ secret của GitHub. Chỉ cần thay `YOUR_UUID` bằng UUID bạn đã điền trong secret `VLESS_UUID`.
+
+**H: Tên miền trong log hiển thị là `YOUR_DOMAIN`?**
+Đ: Vào Settings → Secrets and variables → Actions → Variables và tạo hai biến `VLESS_HOST` / `PANEL_HOST` với tên host đầy đủ; hãy chắc chắn chúng khớp với Public Hostname trong tunnel Cloudflare của bạn.
 
 **H: Ứng dụng khách kiểm tra không thông (-1)?**
 Đ: Kiểm tra ba điểm: ① UUID đã thay đúng chưa; ② phiên bản ứng dụng khách có mới không (v2rayN 7.x+); ③ tunnel Cloudflare có kết nối bình thường không (xem nhật ký).
