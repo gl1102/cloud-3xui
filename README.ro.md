@@ -57,7 +57,23 @@ flowchart TD
 | Nod | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Panou | `https://panel.mallow.ccwu.cc/panel`（utilizator `admin`） |
 
-> ⚠️ Domeniile de mai sus sunt exemple, înlocuiți-le cu propriul domeniu.
+> ⚠️ Domeniile de mai sus sunt exemple. Pentru a le modifica, editați variabilele `VLESS_HOST` / `PANEL_HOST` din Settings → Secrets and variables → Actions → Variables — nu trebuie să editați fișierul workflow.
+
+## Configurarea domeniului
+
+Domeniile nodului și ale panoului se află în variabile GitHub — nu trebuie să editați fișierul workflow:
+
+| Variabilă | Valoare exemplu | Descriere |
+|-----------|-----------------|-----------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresa nodului (nume complet de gazdă) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresa panoului (nume complet de gazdă) |
+
+**Cum se modifică**: mergeți la **Settings** → **Secrets and variables** → **Actions** → fila **Variables** → **New repository variable** și completați numele și valoarea. Modificarea intră în vigoare de la următoarea rulare a workflow-ului.
+
+**Trei lucruri de reținut**:
+- Fiecare variabilă conține **numele complet de gazdă** (inclusiv prefixul subdomeniului), deci nodul și panoul pot indica domenii diferite — nu trebuie să aibă același domeniu părinte
+- Valorile trebuie să corespundă cu numele publice de gazdă (Public Hostnames) create în tunelul Cloudflare la pasul 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), altfel linkul nu va funcționa
+- Dacă o variabilă nu este setată, bannerul afișează un substituent pentru elementul respectiv (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Pași detaliați de configurare
 
@@ -116,7 +132,7 @@ Pași detaliați:
 2. Copiați UUID-ul generat (de forma `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Rețineți neapărat acest UUID**; nu va fi afișat în clar în jurnalul workflow-ului și este necesar de fiecare dată când construiți linkul nodului
 
-### Pasul 3: Adăugați Secrets în GitHub
+### Pasul 3: Adăugați Secrets și Variables în GitHub
 
 1. Intrați în acest repository, faceți clic pe fila **Settings**
 2. În stânga **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Pași detaliați:
    | `CF_TUNNEL_TOKEN` | Tunnel Token copiat la Pasul 1 | Acreditări tunel Cloudflare |
    | `PANEL_PASSWORD` | Parola panoului setată de dvs. | Parolă de conectare la panoul 3x-ui |
    | `VLESS_UUID` | UUID-ul generat la Pasul 2 | UUID-ul nodului, fix și neschimbat |
+
+4. Treceți la fila **Variables**, faceți clic pe **New repository variable** și adăugați două variabile (vedeți secțiunea Configurarea domeniului de mai sus):
+
+   | Name | Valoare | Descriere |
+   |------|---------|-----------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresa nodului |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresa panoului |
 
 ### Pasul 4: Rulați workflow-ul
 
@@ -167,7 +190,7 @@ Pași detaliați:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Copiați linkul `vless://` și înlocuiți `YOUR_UUID` cu UUID-ul dvs.
+3. Copiați linkul `vless://` și înlocuiți `YOUR_UUID` cu UUID-ul dvs. (Domeniul este deja cel real, din variabilele dvs. — nu trebuie înlocuit.)
 4. Lipiți-l în clienți precum v2rayN / v2rayNG / Streisand / NekoBox și este gata de utilizare
 
 ### Pasul 6: Verificați reînnoirea automată (opțional)
@@ -195,6 +218,9 @@ Pași detaliați:
 
 **Î: UUID-ul din linkul nodului apare ca `***` în jurnal?**
 R: Este mecanismul de protecție a secretelor din GitHub. Înlocuiți `YOUR_UUID` cu UUID-ul pe care l-ați completat dvs. în secretul `VLESS_UUID`.
+
+**Î: Domeniul apare ca `YOUR_DOMAIN` în jurnal?**
+R: Mergeți la Settings → Secrets and variables → Actions → Variables și creați variabilele `VLESS_HOST` / `PANEL_HOST` cu numele complete de gazdă; asigurați-vă că acestea corespund cu numele publice de gazdă din tunelul dvs. Cloudflare.
 
 **Î: Clientul nu se conectează la test (-1)?**
 R: Verificați trei lucruri: ① dacă UUID-ul a fost înlocuit corect; ② dacă versiunea clientului este recentă (v2rayN 7.x+); ③ dacă tunelul Cloudflare este conectat corect (consultați jurnalul).
