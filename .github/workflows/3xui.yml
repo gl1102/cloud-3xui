@@ -53,8 +53,8 @@ permissions:
   actions: write
 
 env:
-  VLESS_HOST: vless.${{ vars.DOMAIN || 'YOUR_DOMAIN' }}
-  PANEL_HOST: panel.${{ vars.DOMAIN || 'YOUR_DOMAIN' }}
+  VLESS_HOST: ${{ vars.VLESS_HOST || 'vless.YOUR_DOMAIN' }}
+  PANEL_HOST: ${{ vars.PANEL_HOST || 'panel.YOUR_DOMAIN' }}
   WS_PORT: 8080
   PANEL_PORT: 2053
 
@@ -151,8 +151,8 @@ jobs:
           echo ""
           echo "  把 YOUR_UUID 换成你在 VLESS_UUID secret 里填的 UUID"
           echo "  Replace YOUR_UUID with the UUID from your VLESS_UUID secret"
-          echo "  域名：去 Settings → Secrets and variables → Actions → Variables 改 DOMAIN 变量"
-          echo "  Domain: set the DOMAIN variable in Settings → Secrets and variables → Actions → Variables"
+          echo "  域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量"
+          echo "  Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables"
           echo "=================================================="
 
       - name: Keep alive
