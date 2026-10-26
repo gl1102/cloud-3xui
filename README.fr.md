@@ -57,7 +57,23 @@ flowchart TD
 | Nœud | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Panneau | `https://panel.mallow.ccwu.cc/panel`（nom d'utilisateur `admin`） |
 
-> ⚠️ Les noms de domaine ci-dessus sont des exemples ; remplacez-les par votre propre nom de domaine.
+> ⚠️ Les noms de domaine ci-dessus sont des exemples. Pour les modifier, éditez les variables `VLESS_HOST` / `PANEL_HOST` dans Settings → Secrets and variables → Actions → Variables — pas besoin de modifier le fichier du workflow.
+
+## Configuration du domaine
+
+Les domaines du nœud et du panneau sont stockés dans des variables GitHub — pas besoin de modifier le fichier du workflow :
+
+| Variable | Exemple de valeur | Description |
+|----------|-------------------|-------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresse du nœud (nom d'hôte complet) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresse du panneau (nom d'hôte complet) |
+
+**Comment modifier** : allez dans **Settings** → **Secrets and variables** → **Actions** → l'onglet **Variables** → **New repository variable**, puis renseignez le nom et la valeur. La modification prend effet au prochain lancement du workflow.
+
+**Trois points à noter** :
+- Chaque variable contient le **nom d'hôte complet** (préfixe du sous-domaine inclus), donc le nœud et le panneau peuvent pointer vers des domaines différents — ils n'ont pas besoin de partager le même domaine parent
+- Les valeurs doivent correspondre aux noms d'hôte publics (Public Hostnames) créés dans le tunnel Cloudflare à l'étape 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), sinon le lien ne fonctionnera pas
+- Si une variable n'est pas définie, la bannière affiche un espace réservé pour l'élément concerné (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Étapes de configuration détaillées
 
@@ -116,7 +132,7 @@ flowchart TD
 2. Copiez l'UUID généré (du type `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Conservez soigneusement cet UUID** : il n'apparaît pas en clair dans les journaux du workflow, et vous en aurez besoin à chaque fois que vous assemblerez le lien du nœud.
 
-### Étape 3 : Ajouter les Secrets dans GitHub
+### Étape 3 : Ajouter les Secrets et les Variables dans GitHub
 
 1. Accédez à ce dépôt et cliquez sur l'onglet **Settings**.
 2. Dans la colonne de gauche : **Secrets and variables** → **Actions**.
@@ -127,6 +143,13 @@ flowchart TD
    | `CF_TUNNEL_TOKEN` | Le Tunnel Token copié à l'étape 1 | Identifiant du tunnel Cloudflare |
    | `PANEL_PASSWORD` | Le mot de passe du panneau que vous définissez | Mot de passe de connexion au panneau 3x-ui |
    | `VLESS_UUID` | L'UUID généré à l'étape 2 | UUID du nœud, fixe et inchangé |
+
+4. Basculez sur l'onglet **Variables**, cliquez sur **New repository variable** et ajoutez deux variables (voir la section Configuration du domaine ci-dessus) :
+
+   | Name | Valeur | Description |
+   |------|--------|-------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresse du nœud |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresse du panneau |
 
 ### Étape 4 : Exécuter le workflow
 
@@ -162,7 +185,7 @@ flowchart TD
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Copiez le lien `vless://` et remplacez `YOUR_UUID` par votre UUID.
+3. Copiez le lien `vless://` et remplacez `YOUR_UUID` par votre UUID. (Le domaine est déjà le vrai, tiré de vos variables — pas besoin de le remplacer.)
 4. Collez-le dans un client tel que v2rayN / v2rayNG / Streisand / NekoBox pour l'utiliser.
 
 ### Étape 6 : Vérifier le renouvellement automatique (facultatif)
@@ -190,6 +213,9 @@ flowchart TD
 
 **Q : L'UUID du lien du nœud s'affiche comme `***` dans les journaux ?**
 R : C'est le mécanisme de protection des secrets de GitHub. Remplacez `YOUR_UUID` par l'UUID que vous avez vous-même renseigné dans le secret `VLESS_UUID`.
+
+**Q : Le domaine s'affiche comme `YOUR_DOMAIN` dans les journaux ?**
+R : Allez dans Settings → Secrets and variables → Actions → Variables et créez les variables `VLESS_HOST` / `PANEL_HOST` avec les noms d'hôte complets ; vérifiez qu'elles correspondent aux noms d'hôte publics de votre tunnel Cloudflare.
 
 **Q : Le test du client échoue (-1) ?**
 R : Vérifiez trois points : ① l'UUID a-t-il été correctement remplacé ; ② la version du client est-elle suffisamment récente (v2rayN 7.x+) ; ③ le tunnel Cloudflare est-il correctement connecté (consultez le journal).
