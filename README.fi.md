@@ -54,8 +54,8 @@ flowchart TD
 
 | Käyttötarkoitus | Osoite |
 |------|------|
-| Solmu | `vless.my-github.ccwu.cc:443`（VLESS + WebSocket + TLS） |
-| Paneeli | `https://panel.my-github.ccwu.cc/panel`（käyttäjänimi `admin`） |
+| Solmu | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
+| Paneeli | `https://panel.mallow.ccwu.cc/panel`（käyttäjänimi `admin`） |
 
 > ⚠️ Yllä olevat verkkotunnukset ovat esimerkkejä; korvaa ne omalla verkkotunnuksellasi.
 
@@ -151,13 +151,15 @@ Yksityiskohtaiset vaiheet:
 2. Laajenna vaihe **Start named Cloudflare tunnel** ja tarkista lokituloste:
    ```
    ==================================================
-     Paneeli Panel: https://panel.my-github.ccwu.cc/panel  (admin / salasanasi your password)
+     Paneeli Panel: https://panel.mallow.ccwu.cc/panel  (admin / salasanasi your password)
 
      VLESS-solmu node:
-     vless://YOUR_UUID@vless.my-github.ccwu.cc:443?encryption=none&security=tls&sni=vless.my-github.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
+     vless://YOUR_UUID@vless.mallow.ccwu.cc:443?encryption=none&security=tls&sni=vless.mallow.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
 
      Korvaa YOUR_UUID sillä UUID:llä, jonka syötit VLESS_UUID-secretiin
      Replace YOUR_UUID with the UUID from your VLESS_UUID secret
+     域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量
+     Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
 3. Kopioi `vless://`-linkki ja korvaa `YOUR_UUID` omalla UUID:lläsi.
