@@ -58,7 +58,23 @@ flowchart TD
 | 노드 | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | 패널 | `https://panel.mallow.ccwu.cc/panel` (사용자 이름 `admin`) |
 
-> ⚠️ 위 도메인은 예시입니다. 자신의 도메인으로 바꾸세요.
+> ⚠️ 위 도메인은 예시입니다. 변경하려면 Settings → Secrets and variables → Actions → Variables에서 `VLESS_HOST` / `PANEL_HOST` 두 변수를 편집하세요. 워크플로 파일을 편집할 필요는 없습니다.
+
+## 도메인 설정
+
+노드와 패널의 도메인은 GitHub 변수에 저장되어 있으며, 워크플로 파일을 편집할 필요가 없습니다.
+
+| 변수 | 예시 값 | 설명 |
+|------|---------|------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | 노드 주소(전체 호스트 이름) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | 패널 주소(전체 호스트 이름) |
+
+**변경 방법**: **Settings** → **Secrets and variables** → **Actions** → **Variables** 탭 → **New repository variable**에서 이름과 값을 입력합니다. 변경 사항은 다음 워크플로 실행부터 적용됩니다.
+
+**참고 사항 3가지**:
+- 각 변수에는 **전체 호스트 이름**(서브도메인 접두사 포함)이 들어가므로, 노드와 패널은 서로 다른 도메인을 가리킬 수 있으며, 같은 상위 도메인일 필요는 없습니다
+- 값은 1단계에서 Cloudflare 터널에 만든 퍼블릭 호스트 이름(Public Hostname)과 일치해야 합니다(`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053). 일치하지 않으면 링크가 동작하지 않습니다
+- 변수가 설정되지 않은 경우, 배너에는 해당 항목의 자리 표시자(`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)가 표시됩니다
 
 ## 상세 설정 단계
 
@@ -117,7 +133,7 @@ flowchart TD
 2. 생성된 UUID를 복사합니다(예: `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **이 UUID를 꼭 기억해 두세요**. 워크플로 로그에는 평문으로 표시되지 않으며, 노드 링크를 만들 때마다 필요합니다
 
-### 3단계: GitHub에 Secrets 추가
+### 3단계: GitHub에 Secrets 및 Variables 추가
 
 1. 이 저장소를 열고 **Settings** 탭을 클릭합니다
 2. 왼쪽 **Secrets and variables** → **Actions**로 들어갑니다
@@ -128,6 +144,13 @@ flowchart TD
    | `CF_TUNNEL_TOKEN` | 1단계에서 복사한 Tunnel Token | Cloudflare 터널 자격 증명 |
    | `PANEL_PASSWORD` | 직접 정한 패널 비밀번호 | 3x-ui 패널 로그인 비밀번호 |
    | `VLESS_UUID` | 2단계에서 생성한 UUID | 노드 UUID, 변경되지 않음 |
+
+4. **Variables** 탭으로 전환하여 **New repository variable**을 클릭하고 두 개의 변수를 추가합니다(위의 도메인 설정 섹션 참조):
+
+   | Name | 값 | 설명 |
+   |------|----|------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | 노드 주소 |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | 패널 주소 |
 
 ### 4단계: 워크플로 실행
 
@@ -163,7 +186,7 @@ flowchart TD
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. `vless://` 링크를 복사하고 `YOUR_UUID`를 자신의 UUID로 바꿉니다
+3. `vless://` 링크를 복사하고 `YOUR_UUID`를 자신의 UUID로 바꿉니다 (도메인은 이미 변수에서 가져온 실제 도메인이므로 바꿀 필요가 없습니다.)
 4. v2rayN / v2rayNG / Streisand / NekoBox 등 클라이언트에 붙여넣으면 사용할 수 있습니다
 
 ### 6단계: 자동 복구 확인(선택)
@@ -191,6 +214,9 @@ flowchart TD
 
 **Q: 로그의 노드 링크에서 UUID가 `***`로 표시되나요?**
 A: GitHub의 secret 보호 기능 때문입니다. `YOUR_UUID`를 `VLESS_UUID` secret에 입력한 자신의 UUID로 바꾸면 됩니다.
+
+**Q: 로그에 도메인이 `YOUR_DOMAIN`으로 표시되나요?**
+A: Settings → Secrets and variables → Actions → Variables에서 전체 호스트 이름으로 `VLESS_HOST` / `PANEL_HOST` 변수를 만드세요. Cloudflare 터널의 퍼블릭 호스트 이름과 일치하는지 확인하세요.
 
 **Q: 클라이언트 테스트가 실패하나요(-1)?**
 A: 세 가지를 확인하세요: ① UUID가 올바르게 교체되었는지; ② 클라이언트 버전이 충분히 최신인지(v2rayN 7.x+); ③ Cloudflare 터널이 정상적으로 연결되었는지(로그 확인).
