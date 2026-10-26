@@ -57,7 +57,23 @@ flowchart TD
 | Uzel | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panel | `https://panel.mallow.ccwu.cc/panel` (uživatelské jméno `admin`) |
 
-> ⚠️ Výše uvedené domény jsou jen příklady, nahraďte je vlastní doménou.
+> ⚠️ Výše uvedené domény jsou jen příklady. Chcete-li je změnit, upravte proměnné `VLESS_HOST` / `PANEL_HOST` v Settings → Secrets and variables → Actions → Variables, soubor workflow upravovat nemusíte.
+
+## Nastavení domény
+
+Domény uzlu a panelu jsou uloženy v proměnných GitHubu, soubor workflow není třeba upravovat:
+
+| Proměnná | Příklad hodnoty | Popis |
+|----------|-----------------|-------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresa uzlu (úplný název hostitele) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresa panelu (úplný název hostitele) |
+
+**Jak změnit**: Přejděte do **Settings** → **Secrets and variables** → **Actions** → na kartu **Variables** → **New repository variable** a vyplňte název a hodnotu. Změna se projeví při příštím spuštění workflow.
+
+**Tři poznámky**:
+- Každá proměnná obsahuje **úplný název hostitele** (včetně předpony subdomény), takže uzel a panel mohou odkazovat na různé domény, nemusí sdílet stejnou nadřazenou doménu
+- Hodnoty se musí shodovat s veřejnými názvy hostitelů (Public Hostnames), které jste vytvořili v tunelu Cloudflare v kroku 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), jinak odkaz nebude fungovat
+- Pokud proměnná není nastavena, banner zobrazí u dané položky zástupný text (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Podrobný návod k nastavení
 
@@ -116,7 +132,7 @@ Podrobné kroky:
 2. Zkopírujte vygenerované UUID (ve tvaru `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Toto UUID si dobře poznamenejte**, v logu workflow se nezobrazí v otevřené podobě a budete ho potřebovat při každém skládání odkazu na uzel
 
-### Krok 3: Přidání Secrets na GitHubu
+### Krok 3: Přidání Secrets a Variables na GitHubu
 
 1. Otevřete tento repozitář a klikněte na záložku **Settings**
 2. Vlevo **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Podrobné kroky:
    | `CF_TUNNEL_TOKEN` | Tunnel Token zkopírovaný v kroku 1 | Přihlašovací údaje tunelu Cloudflare |
    | `PANEL_PASSWORD` | Vámi nastavené heslo panelu | Přihlašovací heslo panelu 3x-ui |
    | `VLESS_UUID` | UUID vygenerované v kroku 2 | UUID uzlu, nemění se |
+
+4. Přejděte na kartu **Variables**, klikněte na **New repository variable** a přidejte dvě proměnné (viz část Nastavení domény výše):
+
+   | Name | Hodnota | Popis |
+   |------|---------|-------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adresa uzlu |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adresa panelu |
 
 ### Krok 4: Spuštění workflow
 
@@ -162,7 +185,7 @@ Podrobné kroky:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Zkopírujte odkaz `vless://` a nahraďte `YOUR_UUID` svým UUID
+3. Zkopírujte odkaz `vless://` a nahraďte `YOUR_UUID` svým UUID (Doména už je ta skutečná z vašich proměnných, není třeba ji nahrazovat.)
 4. Vložte ho do klientů v2rayN / v2rayNG / Streisand / NekoBox apod. a můžete používat
 
 ### Krok 6: Ověření automatického prodloužení (volitelné)
@@ -190,6 +213,9 @@ Podrobné kroky:
 
 **Q: V logu se UUID v odkazu na uzel zobrazuje jako `***`?**
 A: To je ochranný mechanismus secretů GitHubu. Nahraďte `YOUR_UUID` UUID, které jste zadali do `VLESS_UUID` secret.
+
+**Q: V logu se doména zobrazuje jako `YOUR_DOMAIN`?**
+A: V Settings → Secrets and variables → Actions → Variables vytvořte proměnné `VLESS_HOST` / `PANEL_HOST` s úplnými názvy hostitelů a zkontrolujte, že odpovídají veřejným názvům hostitelů v tunelu Cloudflare.
 
 **Q: Test klienta selže (-1)?**
 A: Zkontrolujte tři věci: ① zda je UUID nahrazeno správně; ② zda je verze klienta dostatečně nová (v2rayN 7.x+); ③ zda je tunel Cloudflare správně připojen (podívejte se do logu).
