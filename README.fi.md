@@ -57,7 +57,23 @@ flowchart TD
 | Solmu | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Paneeli | `https://panel.mallow.ccwu.cc/panel`（käyttäjänimi `admin`） |
 
-> ⚠️ Yllä olevat verkkotunnukset ovat esimerkkejä; korvaa ne omalla verkkotunnuksellasi.
+> ⚠️ Yllä olevat verkkotunnukset ovat esimerkkejä. Voit muuttaa ne muokkaamalla muuttujia `VLESS_HOST` / `PANEL_HOST` kohdassa Settings → Secrets and variables → Actions → Variables; workflow-tiedostoa ei tarvitse muokata.
+
+## Toimialueen määritys
+
+Solmun ja paneelin toimialueet ovat GitHub-muuttujissa, eikä workflow-tiedostoa tarvitse muokata:
+
+| Muuttuja | Esimerkkiarvo | Kuvaus |
+|----------|---------------|--------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Solmun osoite (täydellinen isäntänimi) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneelin osoite (täydellinen isäntänimi) |
+
+**Näin muutat**: Siirry kohtaan **Settings** → **Secrets and variables** → **Actions** → **Variables**-välilehti → **New repository variable** ja täytä nimi ja arvo. Muutos tulee voimaan seuraavassa workflow-ajossa.
+
+**Kolme huomioitavaa asiaa**:
+- Jokainen muuttuja sisältää **täydellisen isäntänimen** (aliverkkotunnuksen etuliite mukaan lukien), joten solmu ja paneeli voivat osoittaa eri toimialueisiin, eikä niiden tarvitse jakaa samaa ylätason toimialuetta
+- Arvojen on vastattava julkisia isäntänimiä (Public Hostnames), jotka loit Cloudflare-tunneliin vaiheessa 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), muuten linkki ei toimi
+- Jos muuttujaa ei ole asetettu, banneri näyttää kyseisen kohdan kohdalla paikkamerkin (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Yksityiskohtaiset määritysvaiheet
 
@@ -116,7 +132,7 @@ Yksityiskohtaiset vaiheet:
 2. Kopioi luotu UUID (esim. `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Pidä tämä UUID ehdottomasti tallessa** – se ei näy selväkielisenä työnkulun lokeissa, ja tarvitset sitä joka kerta kootessasi solmulinkkiä
 
-### Vaihe 3: Lisää GitHub-secretsit
+### Vaihe 3: Lisää GitHub-secretsit ja -muuttujat
 
 1. Siirry tähän repositorioon ja napsauta **Settings**-välilehteä.
 2. Valitse vasemmalta **Secrets and variables** → **Actions**.
@@ -127,6 +143,13 @@ Yksityiskohtaiset vaiheet:
    | `CF_TUNNEL_TOKEN` | Vaiheessa 1 kopioitu Tunnel Token | Cloudflare-tunnelin tunnistetieto |
    | `PANEL_PASSWORD` | Itse asettamasi paneelin salasana | 3x-ui-paneelin kirjautumissalasana |
    | `VLESS_UUID` | Vaiheessa 2 luotu UUID | Solmun UUID, pysyvästi muuttumaton |
+
+4. Siirry **Variables**-välilehdelle, napsauta **New repository variable** ja lisää kaksi muuttujaa (katso yllä oleva kohta Toimialueen määritys):
+
+   | Name | Arvo | Kuvaus |
+   |------|------|--------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Solmun osoite |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneelin osoite |
 
 ### Vaihe 4: Aja työnkulku
 
@@ -162,7 +185,7 @@ Yksityiskohtaiset vaiheet:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Kopioi `vless://`-linkki ja korvaa `YOUR_UUID` omalla UUID:lläsi.
+3. Kopioi `vless://`-linkki ja korvaa `YOUR_UUID` omalla UUID:lläsi. (Toimialue on jo oikea, muuttujistasi saatu, eikä sitä tarvitse korvata.)
 4. Liitä se v2rayN / v2rayNG / Streisand / NekoBox -asiakasohjelmaan, niin voit käyttää sitä.
 
 ### Vaihe 6: Varmista automaattinen elvytys (valinnainen)
@@ -190,6 +213,9 @@ Yksityiskohtaiset vaiheet:
 
 **K: Solmulinkin UUID näkyy lokeissa muodossa `***`?**
 V: Tämä on GitHubin secret-suojausmekanismi. Korvaa `YOUR_UUID` sillä UUID:llä, jonka syötit `VLESS_UUID`-secretiin.
+
+**K: Toimialue näkyy lokeissa muodossa `YOUR_DOMAIN`?**
+V: Siirry kohtaan Settings → Secrets and variables → Actions → Variables ja luo muuttujat `VLESS_HOST` / `PANEL_HOST` täydellisillä isäntänimillä; varmista, että ne vastaavat Cloudflare-tunnelisi julkisia isäntänimiä.
 
 **K: Asiakasohjelman testi ei mene läpi (-1)?**
 V: Tarkista kolme asiaa: ① onko UUID korvattu oikein; ② onko asiakasohjelman versio tarpeeksi uusi (v2rayN 7.x+); ③ onko Cloudflare-tunneli yhdistetty normaalisti (katso lokia).
