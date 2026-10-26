@@ -54,8 +54,8 @@ flowchart TD
 
 | کاربرد | آدرس |
 |------|------|
-| نود | `vless.my-github.ccwu.cc:443`（VLESS + WebSocket + TLS） |
-| پنل | `https://panel.my-github.ccwu.cc/panel`（نام کاربری `admin`） |
+| نود | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
+| پنل | `https://panel.mallow.ccwu.cc/panel`（نام کاربری `admin`） |
 
 > ⚠️ دامنه‌های بالا صرفاً نمونه هستند؛ آن‌ها را با دامنهٔ خودتان جایگزین کنید.
 
@@ -151,13 +151,15 @@ flowchart TD
 2. مرحلهٔ **Start named Cloudflare tunnel** را باز کنید و خروجی لاگ را ببینید:
    ```
    ==================================================
-     پنل Panel: https://panel.my-github.ccwu.cc/panel  (admin / رمز شما your password)
+     پنل Panel: https://panel.mallow.ccwu.cc/panel  (admin / رمز شما your password)
 
      نود VLESS node:
-     vless://YOUR_UUID@vless.my-github.ccwu.cc:443?encryption=none&security=tls&sni=vless.my-github.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
+     vless://YOUR_UUID@vless.mallow.ccwu.cc:443?encryption=none&security=tls&sni=vless.mallow.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
 
      YOUR_UUID را با UUIDای که در secret مربوط به VLESS_UUID وارد کرده‌اید جایگزین کنید
      Replace YOUR_UUID with the UUID from your VLESS_UUID secret
+     域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量
+     Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
 3. لینک `vless://` را کپی کنید و `YOUR_UUID` را با UUID خودتان جایگزین کنید.
