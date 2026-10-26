@@ -57,7 +57,23 @@ flowchart TD
 | Węzeł | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Panel | `https://panel.mallow.ccwu.cc/panel`（nazwa użytkownika `admin`） |
 
-> ⚠️ Powyższe domeny to przykłady — zastąp je własną domeną.
+> ⚠️ Powyższe domeny to przykłady. Aby je zmienić, edytuj zmienne `VLESS_HOST` / `PANEL_HOST` w Settings → Secrets and variables → Actions → Variables — nie trzeba edytować pliku workflow.
+
+## Konfiguracja domeny
+
+Domeny węzła i panelu znajdują się w zmiennych GitHuba — nie trzeba edytować pliku workflow:
+
+| Zmienna | Przykładowa wartość | Opis |
+|---------|---------------------|------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adres węzła (pełna nazwa hosta) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adres panelu (pełna nazwa hosta) |
+
+**Jak zmienić**: przejdź do **Settings** → **Secrets and variables** → **Actions** → karty **Variables** → **New repository variable** i wpisz nazwę oraz wartość. Zmiana zacznie obowiązywać od następnego uruchomienia workflow.
+
+**Trzy rzeczy, o których warto pamiętać**:
+- Każda zmienna zawiera **pełną nazwę hosta** (wraz z prefiksem subdomeny), więc węzeł i panel mogą wskazywać na różne domeny — nie muszą mieć wspólnej domeny nadrzędnej
+- Wartości muszą odpowiadać publicznym nazwom hostów (Public Hostnames) utworzonym w tunelu Cloudflare w kroku 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), w przeciwnym razie link nie zadziała
+- Jeśli zmienna nie jest ustawiona, baner wyświetla symbol zastępczy dla danego elementu (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Szczegółowe kroki konfiguracji
 
@@ -116,7 +132,7 @@ Szczegółowe kroki:
 2. Skopiuj wygenerowany UUID (np. `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Koniecznie zapamiętaj ten UUID** — nie pojawia się on w logach workflowu w postaci jawnej, a jest potrzebny przy każdym składaniu linku do węzła
 
-### Krok 3: Dodanie sekretów w GitHub
+### Krok 3: Dodanie sekretów i zmiennych w GitHub
 
 1. Wejdź do tego repozytorium i kliknij zakładkę **Settings**
 2. Po lewej **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Szczegółowe kroki:
    | `CF_TUNNEL_TOKEN` | Token tunelu skopiowany w kroku 1 | Poświadczenie tunelu Cloudflare |
    | `PANEL_PASSWORD` | Ustawione przez Ciebie hasło panelu | Hasło logowania do panelu 3x-ui |
    | `VLESS_UUID` | UUID wygenerowany w kroku 2 | UUID węzła, stały i niezmienny |
+
+4. Przejdź do karty **Variables**, kliknij **New repository variable** i dodaj dwie zmienne (zobacz sekcję Konfiguracja domeny powyżej):
+
+   | Name | Wartość | Opis |
+   |------|---------|------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adres węzła |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adres panelu |
 
 ### Krok 4: Uruchomienie workflowu
 
@@ -167,7 +190,7 @@ Szczegółowe kroki:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Skopiuj link `vless://` i zamień `YOUR_UUID` na własny UUID
+3. Skopiuj link `vless://` i zamień `YOUR_UUID` na własny UUID (Domena jest już prawdziwa, pobrana z twoich zmiennych — nie trzeba jej zamieniać.)
 4. Wklej go do klienta v2rayN / v2rayNG / Streisand / NekoBox itd. i możesz korzystać
 
 ### Krok 6: Weryfikacja automatycznego odnawiania (opcjonalnie)
@@ -195,6 +218,9 @@ Szczegółowe kroki:
 
 **P: UUID w linku do węzła w logu wyświetla się jako `***`?**
 O: To mechanizm ochrony sekretów GitHub. Zamień `YOUR_UUID` na UUID, który sam wpisałeś w sekrecie `VLESS_UUID`.
+
+**P: Domena w logu wyświetla się jako `YOUR_DOMAIN`?**
+O: Przejdź do Settings → Secrets and variables → Actions → Variables i utwórz zmienne `VLESS_HOST` / `PANEL_HOST` z pełnymi nazwami hostów; upewnij się, że odpowiadają publicznym nazwom hostów w twoim tunelu Cloudflare.
 
 **P: Test klienta nie przechodzi (-1)?**
 O: Sprawdź trzy rzeczy: ① czy UUID został poprawnie podmieniony; ② czy wersja klienta jest aktualna (v2rayN 7.x+); ③ czy tunel Cloudflare jest poprawnie połączony (zobacz log).
