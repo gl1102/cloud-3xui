@@ -57,7 +57,23 @@ flowchart TD
 | Düğüm | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Panel | `https://panel.mallow.ccwu.cc/panel`（kullanıcı adı `admin`） |
 
-> ⚠️ Yukarıdaki alan adları örnektir, kendi alan adınızla değiştirin.
+> ⚠️ Yukarıdaki alan adları örnektir. Bunları değiştirmek için Settings → Secrets and variables → Actions → Variables bölümündeki `VLESS_HOST` / `PANEL_HOST` değişkenlerini düzenleyin — workflow dosyasını düzenlemeniz gerekmez.
+
+## Alan adı yapılandırması
+
+Düğümün ve panelin alan adları GitHub değişkenlerinde tutulur — workflow dosyasını düzenlemeniz gerekmez:
+
+| Değişken | Örnek değer | Açıklama |
+|----------|-------------|----------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Düğüm adresi (tam ana bilgisayar adı) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel adresi (tam ana bilgisayar adı) |
+
+**Nasıl değiştirilir**: **Settings** → **Secrets and variables** → **Actions** → **Variables** sekmesi → **New repository variable** yolunu izleyip ad ve değer girin. Değişiklik, workflow'un bir sonraki çalışmasında geçerli olur.
+
+**Dikkat edilmesi gereken üç nokta**:
+- Her değişken **tam ana bilgisayar adını** içerir (alt alan adı öneki dahil), bu nedenle düğüm ve panel farklı alan adlarına işaret edebilir — aynı üst alan adını paylaşmaları gerekmez
+- Değerler, 1. adımda Cloudflare tünelinde oluşturduğunuz genel ana bilgisayar adlarıyla (Public Hostnames) eşleşmelidir (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053); eşleşmezse bağlantı çalışmaz
+- Bir değişken ayarlanmamışsa, banner o öğe için bir yer tutucu gösterir (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Detaylı Yapılandırma Adımları
 
@@ -116,7 +132,7 @@ Ayrıntılı adımlar:
 2. Oluşturulan UUID'yi kopyalayın (örneğin `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Bu UUID'yi mutlaka not edin**; iş akışı günlüğünde açık metin olarak görünmez, düğüm bağlantısını her oluşturduğunuzda buna ihtiyacınız olur
 
-### Adım 3: GitHub'a Secrets Ekleyin
+### Adım 3: GitHub'a Secrets ve Variables Ekleyin
 
 1. Bu depoya girin, **Settings** sekmesine tıklayın
 2. Solda **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Ayrıntılı adımlar:
    | `CF_TUNNEL_TOKEN` | 1. adımda kopyaladığınız Tunnel Token | Cloudflare tünel kimlik bilgisi |
    | `PANEL_PASSWORD` | Belirlediğiniz panel şifresi | 3x-ui panel giriş şifresi |
    | `VLESS_UUID` | 2. adımda oluşturduğunuz UUID | Düğüm UUID'si, sabit değişmez |
+
+4. **Variables** sekmesine geçin, **New repository variable** seçeneğine tıklayın ve iki değişken ekleyin (yukarıdaki Alan adı yapılandırması bölümüne bakın):
+
+   | Name | Değer | Açıklama |
+   |------|-------|----------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Düğüm adresi |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel adresi |
 
 ### Adım 4: İş Akışını Çalıştırın
 
@@ -167,7 +190,7 @@ Ayrıntılı adımlar:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. `vless://` bağlantısını kopyalayın, `YOUR_UUID` kısmını kendi UUID'nizle değiştirin
+3. `vless://` bağlantısını kopyalayın, `YOUR_UUID` kısmını kendi UUID'nizle değiştirin (Alan adı zaten değişkenlerinizden gelen gerçek alan adıdır — değiştirmeniz gerekmez.)
 4. v2rayN / v2rayNG / Streisand / NekoBox gibi istemcilere yapıştırıp kullanın
 
 ### Adım 6: Otomatik Yenilemeyi Doğrulayın (isteğe bağlı)
@@ -195,6 +218,9 @@ Ayrıntılı adımlar:
 
 **S: Günlükteki düğüm bağlantısında UUID `***` olarak görünüyor?**
 C: Bu GitHub'un secret koruma mekanizmasıdır. `YOUR_UUID` kısmını `VLESS_UUID` secret'ına girdiğiniz kendi UUID'nizle değiştirmeniz yeterli.
+
+**S: Günlükte alan adı `YOUR_DOMAIN` olarak görünüyor?**
+C: Settings → Secrets and variables → Actions → Variables bölümüne gidin ve `VLESS_HOST` / `PANEL_HOST` değişkenlerini tam ana bilgisayar adlarıyla oluşturun; Cloudflare tünelinizdeki genel ana bilgisayar adlarıyla eşleştiklerinden emin olun.
 
 **S: İstemci testi başarısız (-1)?**
 C: Üç şeyi kontrol edin: ① UUID doğru değiştirilmiş mi; ② istemci sürümü güncel mi (v2rayN 7.x+); ③ Cloudflare tüneli düzgün bağlanmış mı (günlüğe bakın).
