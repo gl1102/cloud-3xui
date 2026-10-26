@@ -188,7 +188,7 @@ jobs:
                 -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                 -H "Accept: application/vnd.github+json" \
                 https://api.github.com/repos/${{ github.repository }}/actions/workflows/3xui.yml/dispatches \
-                -d "{\"ref\":\"main\",\"inputs\":{\"run_minutes\":\"${{ inputs.run_minutes }}\",\"countdown_interval\":\"${{ inputs.countdown_interval }}\",\"countdown_unit\":\"${{ inputs.countdown_unit }}\",\"overlap_threshold\":\"${{ inputs.overlap_threshold }}\",\"overlap_long\":\"${{ inputs.overlap_long }}\",\"overlap_short\":\"${{ inputs.overlap_short }}\"}}")
+                -d "{\"ref\":\"${{ github.ref_name }}\",\"inputs\":{\"run_minutes\":\"${{ inputs.run_minutes }}\",\"countdown_interval\":\"${{ inputs.countdown_interval }}\",\"countdown_unit\":\"${{ inputs.countdown_unit }}\",\"overlap_threshold\":\"${{ inputs.overlap_threshold }}\",\"overlap_long\":\"${{ inputs.overlap_long }}\",\"overlap_short\":\"${{ inputs.overlap_short }}\"}}")
               echo "HTTP $HTTP_CODE"
               if [ "$HTTP_CODE" = "204" ]; then
                 echo "已提前触发下一次运行 Next run triggered early"
@@ -224,7 +224,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/3xui.yml/dispatches \
-            -d "{\"ref\":\"main\",\"inputs\":{\"run_minutes\":\"${{ inputs.run_minutes }}\",\"countdown_interval\":\"${{ inputs.countdown_interval }}\",\"countdown_unit\":\"${{ inputs.countdown_unit }}\",\"overlap_threshold\":\"${{ inputs.overlap_threshold }}\",\"overlap_long\":\"${{ inputs.overlap_long }}\",\"overlap_short\":\"${{ inputs.overlap_short }}\"}}")
+            -d "{\"ref\":\"${{ github.ref_name }}\",\"inputs\":{\"run_minutes\":\"${{ inputs.run_minutes }}\",\"countdown_interval\":\"${{ inputs.countdown_interval }}\",\"countdown_unit\":\"${{ inputs.countdown_unit }}\",\"overlap_threshold\":\"${{ inputs.overlap_threshold }}\",\"overlap_long\":\"${{ inputs.overlap_long }}\",\"overlap_short\":\"${{ inputs.overlap_short }}\"}}")
           echo "HTTP $HTTP_CODE"
           cat /tmp/dispatch_resp.txt; echo ""
           [ "$HTTP_CODE" = "204" ] && echo "已触发下一次运行 Next run triggered" || { echo "触发失败 Trigger failed"; exit 1; }
