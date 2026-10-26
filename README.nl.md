@@ -57,7 +57,23 @@ flowchart TD
 | Node | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Paneel | `https://panel.mallow.ccwu.cc/panel`（gebruikersnaam `admin`） |
 
-> ⚠️ Bovenstaande domeinen zijn voorbeelden — vervang ze door je eigen domein.
+> ⚠️ Bovenstaande domeinen zijn voorbeelden. Om ze te wijzigen, bewerk je de variabelen `VLESS_HOST` / `PANEL_HOST` in Settings → Secrets and variables → Actions → Variables — je hoeft het workflowbestand niet te bewerken.
+
+## Domeininstelling
+
+De domeinen van de node en het paneel staan in GitHub-variabelen — je hoeft het workflowbestand niet te bewerken:
+
+| Variabele | Voorbeeldwaarde | Beschrijving |
+|-----------|-----------------|--------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Nodeadres (volledige hostnaam) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneeladres (volledige hostnaam) |
+
+**Zo wijzig je ze**: Ga naar **Settings** → **Secrets and variables** → **Actions** → het tabblad **Variables** → **New repository variable** en vul de naam en waarde in. De wijziging geldt vanaf de volgende workflowuitvoering.
+
+**Drie dingen om op te letten**:
+- Elke variabele bevat de **volledige hostnaam** (inclusief het subdomeinvoorvoegsel), dus de node en het paneel kunnen naar verschillende domeinen verwijzen — ze hoeven geen bovenliggend domein te delen
+- De waarden moeten overeenkomen met de openbare hostnamen (Public Hostnames) die je in stap 1 in de Cloudflare-tunnel hebt aangemaakt (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), anders werkt de link niet
+- Als een variabele niet is ingesteld, toont de banner een tijdelijke aanduiding voor dat item (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Gedetailleerde configuratiestappen
 
@@ -116,7 +132,7 @@ Gedetailleerde stappen:
 2. Kopieer de gegenereerde UUID (bijvoorbeeld `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Bewaar deze UUID goed** — hij wordt niet in platte tekst in de workflowlogs getoond, en je hebt hem elke keer nodig bij het samenstellen van de node-link
 
-### Stap 3: Secrets toevoegen in GitHub
+### Stap 3: Secrets en Variables toevoegen in GitHub
 
 1. Open deze repository en klik op het tabblad **Settings**
 2. Ga links naar **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Gedetailleerde stappen:
    | `CF_TUNNEL_TOKEN` | De in stap 1 gekopieerde Tunnel Token | Cloudflare-tunnelreferentie |
    | `PANEL_PASSWORD` | Het door jou ingestelde paneelwachtwoord | Aanmeldwachtwoord van het 3x-ui-paneel |
    | `VLESS_UUID` | De in stap 2 gegenereerde UUID | UUID van de node, vast en onveranderlijk |
+
+4. Ga naar het tabblad **Variables**, klik op **New repository variable** en voeg twee variabelen toe (zie de sectie Domeininstelling hierboven):
+
+   | Name | Waarde | Beschrijving |
+   |------|--------|--------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Nodeadres |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneeladres |
 
 ### Stap 4: De workflow uitvoeren
 
@@ -167,7 +190,7 @@ Gedetailleerde stappen:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Kopieer de `vless://`-link en vervang `YOUR_UUID` door je eigen UUID
+3. Kopieer de `vless://`-link en vervang `YOUR_UUID` door je eigen UUID (Het domein is al het echte domein uit je variabelen — je hoeft het niet te vervangen.)
 4. Plak hem in v2rayN / v2rayNG / Streisand / NekoBox of een andere client en je kunt hem gebruiken
 
 ### Stap 6: De automatische verlenging verifiëren (optioneel)
@@ -195,6 +218,9 @@ Gedetailleerde stappen:
 
 **V: In het log wordt de UUID van de node-link weergegeven als `***`?**
 A: Dat is het secret-beschermingsmechanisme van GitHub. Vervang `YOUR_UUID` door de UUID die je zelf in de `VLESS_UUID`-secret hebt ingevuld.
+
+**V: In het log wordt het domein weergegeven als `YOUR_DOMAIN`?**
+A: Ga naar Settings → Secrets and variables → Actions → Variables en maak de variabelen `VLESS_HOST` / `PANEL_HOST` aan met de volledige hostnamen; zorg ervoor dat ze overeenkomen met de openbare hostnamen in je Cloudflare-tunnel.
 
 **V: De clienttest slaagt niet (-1)?**
 A: Controleer drie punten: ① is de UUID correct vervangen; ② is de clientversie recent genoeg (v2rayN 7.x+); ③ is de Cloudflare-tunnel correct verbonden (zie het log).
