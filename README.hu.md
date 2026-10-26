@@ -57,7 +57,23 @@ flowchart TD
 | Csomópont | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panel | `https://panel.mallow.ccwu.cc/panel` (felhasználónév: `admin`) |
 
-> ⚠️ A fenti domainek csak példák, cseréld le a sajátjaidra.
+> ⚠️ A fenti domainek csak példák. Módosításukhoz szerkeszd a `VLESS_HOST` / `PANEL_HOST` változókat a Settings → Secrets and variables → Actions → Variables alatt — nem kell szerkeszteni a workflow-fájlt.
+
+## Tartomány beállítása
+
+A csomópont és a panel tartománya GitHub-változókban van — nem kell szerkeszteni a workflow-fájlt:
+
+| Változó | Példaérték | Leírás |
+|---------|------------|--------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Csomópont címe (teljes hosztnév) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel címe (teljes hosztnév) |
+
+**Így módosíthatod**: menj a **Settings** → **Secrets and variables** → **Actions** → **Variables** fülre → **New repository variable**, és töltsd ki a nevet és az értéket. A változás a workflow következő futtatásától lép életbe.
+
+**Három tudnivaló**:
+- Minden változó a **teljes hosztnevet** tartalmazza (az aldomain előtagjával együtt), így a csomópont és a panel különböző tartományokra is mutathat — nem kell ugyanazt a szülőtartományt használniuk
+- Az értékeknek meg kell egyezniük az 1. lépésben a Cloudflare-alagútban létrehozott nyilvános hosztnevekkel (Public Hostnames) (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), különben a link nem fog működni
+- Ha egy változó nincs beállítva, a fejléc (banner) annál az elemnél helyőrzőt jelenít meg (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Részletes konfigurációs lépések
 
@@ -105,7 +121,7 @@ Részletes lépések:
 2. Másold ki a generált UUID-t (pl. `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Mindenképp jegyezd fel ezt az UUID-t**, a workflow naplóiban nem jelenik meg nyílt szövegként, és minden egyes csomópont-link összeállításához szükséged lesz rá
 
-### 3. lépés: GitHub Secrets hozzáadása
+### 3. lépés: GitHub Secrets és Variables hozzáadása
 
 1. Lépj be ebbe a repóba, és kattints a **Settings** fülre
 2. Bal oldalt **Secrets and variables** → **Actions**
@@ -116,6 +132,13 @@ Részletes lépések:
    | `CF_TUNNEL_TOKEN` | Az 1. lépésben másolt Tunnel Token | Cloudflare tunnel hitelesítő adat |
    | `PANEL_PASSWORD` | Az általad beállított panel-jelszó | 3x-ui panel bejelentkezési jelszó |
    | `VLESS_UUID` | A 2. lépésben generált UUID | Csomópont UUID, fix, nem változik |
+
+4. Válts a **Variables** fülre, kattints a **New repository variable** gombra, és adj hozzá két változót (lásd fent a Tartomány beállítása szakaszt):
+
+   | Name | Érték | Leírás |
+   |------|-------|--------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Csomópont címe |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel címe |
 
 ### 4. lépés: A workflow futtatása
 
@@ -156,7 +179,7 @@ Részletes lépések:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Másold ki a `vless://` linket, és cseréld le a `YOUR_UUID` részt a saját UUID-dre
+3. Másold ki a `vless://` linket, és cseréld le a `YOUR_UUID` részt a saját UUID-dre (A tartomány már a változókból származó valódi tartomány, nem kell lecserélni.)
 4. Illeszd be v2rayN / v2rayNG / Streisand / NekoBox vagy más kliensbe, és már használhatod is
 
 ### 6. lépés: Az automatikus megújítás ellenőrzése (opcionális)
@@ -184,6 +207,9 @@ Részletes lépések:
 
 **K: A naplóban a csomópont-link UUID-je `***`-ként jelenik meg?**
 V: Ez a GitHub secret-védelmi mechanizmusa. Egyszerűen cseréld le a `YOUR_UUID` részt arra az UUID-re, amit a `VLESS_UUID` secretbe írtál.
+
+**K: A naplóban a tartomány `YOUR_DOMAIN` formában jelenik meg?**
+V: Menj a Settings → Secrets and variables → Actions → Variables menüpontba, és hozd létre a `VLESS_HOST` / `PANEL_HOST` változókat a teljes hosztnevekkel; ellenőrizd, hogy megegyeznek-e a Cloudflare-alagutad nyilvános hosztneveivel.
 
 **K: A kliens tesztje nem megy át (-1)?**
 V: Ellenőrizd három dolgot: ① az UUID-t helyesen cserélted-e le; ② elég új-e a kliens verziója (v2rayN 7.x+); ③ a Cloudflare tunnel rendesen csatlakozik-e (nézd a naplót).
