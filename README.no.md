@@ -57,7 +57,23 @@ flowchart TD
 | Node | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
 | Panel | `https://panel.mallow.ccwu.cc/panel`（brukernavn `admin`） |
 
-> ⚠️ Domenene ovenfor er eksempler — bytt dem ut med ditt eget domene.
+> ⚠️ Domenene ovenfor er eksempler. Du endrer dem ved å redigere variablene `VLESS_HOST` / `PANEL_HOST` i Settings → Secrets and variables → Actions → Variables — du trenger ikke å redigere workflow-filen.
+
+## Domeneoppsett
+
+Nodens og panelets domener ligger i GitHub-variabler — du trenger ikke å redigere workflow-filen:
+
+| Variabel | Eksempelverdi | Beskrivelse |
+|----------|---------------|-------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Nodeadresse (fullt vertsnavn) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneladresse (fullt vertsnavn) |
+
+**Slik endrer du**: Gå til **Settings** → **Secrets and variables** → **Actions** → fanen **Variables** → **New repository variable**, og fyll inn navn og verdi. Endringen gjelder fra neste kjøring av workflowen.
+
+**Tre ting å merke seg**:
+- Hver variabel inneholder det **fulle vertsnavnet** (inkludert prefikset for underdomenet), så noden og panelet kan peke på ulike domener — de trenger ikke å dele samme overordnede domene
+- Verdiene må samsvare med de offentlige vertsnavnene (Public Hostnames) du opprettet i Cloudflare-tunnelen i trinn 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), ellers fungerer ikke lenken
+- Hvis en variabel ikke er angitt, viser banneret en plassholder for det elementet (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Detaljerte konfigurasjonstrinn
 
@@ -116,7 +132,7 @@ Detaljerte trinn:
 2. Kopier den genererte UUID-en (f.eks. `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Husk denne UUID-en** — den vises ikke i klartekst i workflow-loggene, og du trenger den hver gang du setter sammen node-lenken
 
-### Trinn 3: Legge til Secrets i GitHub
+### Trinn 3: Legge til Secrets og Variables i GitHub
 
 1. Åpne dette repositoriet og klikk på fanen **Settings**
 2. Gå til **Secrets and variables** → **Actions** til venstre
@@ -127,6 +143,13 @@ Detaljerte trinn:
    | `CF_TUNNEL_TOKEN` | Tunnel Token kopiert i trinn 1 | Cloudflare-tunnellegitimasjon |
    | `PANEL_PASSWORD` | Passordet du har satt for panelet | Påloggingspassord for 3x-ui-panelet |
    | `VLESS_UUID` | UUID-en generert i trinn 2 | Node-UUID, fast og uendret |
+
+4. Gå til fanen **Variables**, klikk på **New repository variable**, og legg til to variabler (se avsnittet Domeneoppsett ovenfor):
+
+   | Name | Verdi | Beskrivelse |
+   |------|-------|-------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Nodeadresse |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneladresse |
 
 ### Trinn 4: Kjøre workflowen
 
@@ -167,7 +190,7 @@ Detaljerte trinn:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Kopier `vless://`-lenken, og bytt `YOUR_UUID` med din egen UUID
+3. Kopier `vless://`-lenken, og bytt `YOUR_UUID` med din egen UUID (Domenet er allerede det virkelige domenet fra variablene dine — du trenger ikke å erstatte det.)
 4. Lim den inn i v2rayN / v2rayNG / Streisand / NekoBox eller en annen klient, så kan du bruke den
 
 ### Trinn 6: Verifisere automatisk fornyelse (valgfritt)
@@ -195,6 +218,9 @@ Detaljerte trinn:
 
 **Q: UUID-en i node-lenken i loggen vises som `***`?**
 A: Dette er GitHubs secret-beskyttelsesmekanisme. Bytt `YOUR_UUID` med UUID-en du selv fylte inn i `VLESS_UUID`-secretet.
+
+**Q: Domenet vises som `YOUR_DOMAIN` i loggen?**
+A: Gå til Settings → Secrets and variables → Actions → Variables, og opprett variablene `VLESS_HOST` / `PANEL_HOST` med de fulle vertsnavnene; sørg for at de samsvarer med de offentlige vertsnavnene i Cloudflare-tunnelen din.
 
 **Q: Klienttesten lykkes ikke (-1)?**
 A: Sjekk tre ting: ① om UUID-en er riktig byttet ut; ② om klientversjonen er ny nok (v2rayN 7.x+); ③ om Cloudflare-tunnelen er koblet til som normalt (se loggen).
