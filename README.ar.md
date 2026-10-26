@@ -57,7 +57,23 @@ flowchart TD
 | العقدة | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | اللوحة | `https://panel.mallow.ccwu.cc/panel` (اسم المستخدم `admin`) |
 
-> ⚠️ أسماء النطاقات أعلاه مجرد أمثلة، استبدلها بنطاقك الخاص.
+> ⚠️ النطاقات أعلاه مجرد أمثلة. لتغييرها، عدّل المتغيرين `VLESS_HOST` / `PANEL_HOST` في Settings → Secrets and variables → Actions → Variables، دون تعديل ملف سير العمل.
+
+## إعداد النطاق
+
+يوجد نطاقا العقدة واللوحة في متغيرات GitHub، ولا حاجة لتعديل ملف سير العمل:
+
+| المتغير | قيمة مثال | الوصف |
+|------|-----------|--------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | عنوان العقدة (اسم مضيف كامل) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | عنوان اللوحة (اسم مضيف كامل) |
+
+**كيفية التغيير**: انتقل إلى **Settings** → **Secrets and variables** → **Actions** → علامة التبويب **Variables** → **New repository variable**، ثم أدخل الاسم والقيمة. يسري التغيير في تشغيل سير العمل التالي.
+
+**ثلاث ملاحظات**:
+- يحتوي كل متغير على **اسم المضيف الكامل** (بما فيه بادئة النطاق الفرعي)، لذلك يمكن أن يشير العقدة واللوحة إلى نطاقين مختلفين، ولا يشترط أن يتشاركا النطاق الأب نفسه
+- يجب أن تطابق القيم أسماء المضيف العامة (Public Hostnames) التي أنشأتها في نفق Cloudflare في الخطوة 1 (`vless` → 127.0.0.1:8080، `panel` → 127.0.0.1:2053)، وإلا فلن يعمل الرابط
+- إذا لم يُضبط متغير ما، يعرض الشريط (banner) عنصرًا نائبًا لذلك الإدخال (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## خطوات التكوين التفصيلية
 
@@ -120,7 +136,7 @@ flowchart TD
 2. انسخ الـ UUID المولّد (على الشكل `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **احفظ هذا الـ UUID جيدًا**، فلن يظهر بشكل صريح في سجلات سير العمل، وستحتاجه في كل مرة لتركيب رابط العقدة
 
-### الخطوة 3: إضافة Secrets إلى GitHub
+### الخطوة 3: إضافة Secrets وVariables إلى GitHub
 
 1. ادخل إلى هذا المستودع، وانقر على تبويب **Settings**
 2. من اليسار **Secrets and variables** → **Actions**
@@ -131,6 +147,13 @@ flowchart TD
    | `CF_TUNNEL_TOKEN` | الـ Tunnel Token المنسوخ من الخطوة 1 | بيانات اعتماد نفق Cloudflare |
    | `PANEL_PASSWORD` | كلمة المرور التي حددتها للوحة | كلمة مرور تسجيل الدخول إلى لوحة 3x-ui |
    | `VLESS_UUID` | الـ UUID المولّد في الخطوة 2 | UUID العقدة، ثابت لا يتغير |
+
+4. انتقل إلى علامة التبويب **Variables**، وانقر على **New repository variable**، وأضف متغيرين (انظر قسم إعداد النطاق أعلاه):
+
+   | Name | القيمة | الوصف |
+   |------|--------|--------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | عنوان العقدة |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | عنوان اللوحة |
 
 ### الخطوة 4: تشغيل سير العمل
 
@@ -166,7 +189,7 @@ flowchart TD
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. انسخ رابط `vless://`، واستبدل `YOUR_UUID` بـ UUID الخاص بك
+3. انسخ رابط `vless://`، واستبدل `YOUR_UUID` بـ UUID الخاص بك (النطاق هو بالفعل النطاق الحقيقي من متغيراتك، ولا حاجة لاستبداله.)
 4. الصقه في عميل v2rayN / v2rayNG / Streisand / NekoBox وغيرها لبدء الاستخدام
 
 ### الخطوة 6: التحقق من التجديد التلقائي (اختياري)
@@ -194,6 +217,9 @@ flowchart TD
 
 **Q: الـ UUID في رابط العقدة يظهر كـ `***` في السجلات؟**
 A: هذه آلية حماية الـ secrets في GitHub. استبدل `YOUR_UUID` بالـ UUID الذي أدخلته في `VLESS_UUID` secret.
+
+**Q: يظهر النطاق في السجلات كـ `YOUR_DOMAIN`؟**
+A: انتقل إلى Settings → Secrets and variables → Actions → Variables وأنشئ المتغيرين `VLESS_HOST` / `PANEL_HOST` باسمَي مضيف كاملين؛ وتأكد من مطابقتهما لأسماء المضيف العامة في نفق Cloudflare.
 
 **Q: اختبار العميل يفشل (-1)؟**
 A: تحقق من ثلاثة أمور: ① هل تم استبدال الـ UUID بشكل صحيح؛ ② هل إصدار العميل حديث (v2rayN 7.x+)؛ ③ هل نفق Cloudflare متصل بشكل طبيعي (اطلع على السجلات).
