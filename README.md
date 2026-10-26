@@ -54,10 +54,26 @@ flowchart TD
 
 | 用途 | 地址 |
 |------|------|
-| 节点 | `vless.my-github.ccwu.cc:443`（VLESS + WebSocket + TLS） |
-| 面板 | `https://panel.my-github.ccwu.cc/panel`（用户名 `admin`） |
+| 节点 | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
+| 面板 | `https://panel.mallow.ccwu.cc/panel`（用户名 `admin`） |
 
-> ⚠️ 上面的域名是示例，换成你自己的域名。
+> ⚠️ 上面的域名是示例。改域名去 Settings → Secrets and variables → Actions → Variables 里改 `VLESS_HOST` / `PANEL_HOST` 两个变量，不用改工作流文件。
+
+## 域名配置
+
+节点和面板的域名存在 GitHub 变量里，改域名不用改工作流文件：
+
+| 变量 | 示例值 | 说明 |
+|------|--------|------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | 节点地址（完整主机名） |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | 面板地址（完整主机名） |
+
+**怎么改**：仓库 **Settings** → 左侧 **Secrets and variables** → **Actions** → **Variables** 页签 → **New repository variable**，填名字和值。改完下次运行工作流自动生效。
+
+**注意三点**：
+- 两个变量存的是**完整主机名**（含子域名前缀），节点和面板可以指向不同的域名，不必是同一个父域名
+- 变量里填的必须和第一步在 Cloudflare 隧道里建的 Public Hostname 一致（`vless` → 127.0.0.1:8080，`panel` → 127.0.0.1:2053），两边对不上链接打不开
+- 哪个变量没填，日志横幅里那一项就显示占位符（`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`）
 
 ## 详细配置步骤
 
@@ -115,7 +131,7 @@ flowchart TD
 2. 复制生成的 UUID（形如 `cbfc229f-9d34-4fef-9990-8baa82a7327b`）
 3. **务必记好这个 UUID**，工作流日志里不会明文显示，每次拼接节点链接都要用它
 
-### 第三步：GitHub 添加 Secrets
+### 第三步：GitHub 添加 Secrets 和 Variables
 
 1. 进入本仓库，点击 **Settings** 标签页
 2. 左侧 **Secrets and variables** → **Actions**
@@ -126,6 +142,13 @@ flowchart TD
    | `CF_TUNNEL_TOKEN` | 第一步复制的 Tunnel Token | Cloudflare 隧道凭证 |
    | `PANEL_PASSWORD` | 你设定的面板密码 | 3x-ui 面板登录密码 |
    | `VLESS_UUID` | 第二步生成的 UUID | 节点 UUID，固定不变 |
+
+4. 切换到 **Variables** 页签，点击 **New repository variable**，添加两个变量（域名配置见 [域名配置](#域名配置)）：
+
+   | Name | 值 | 说明 |
+   |------|----|------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | 节点地址 |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | 面板地址 |
 
 ### 第四步：运行工作流
 
@@ -155,16 +178,18 @@ flowchart TD
 2. 展开 **Start named Cloudflare tunnel** 步骤，查看日志输出：
    ```
    ==================================================
-     面板 Panel: https://panel.my-github.ccwu.cc/panel  (admin / 你的密码 your password)
+     面板 Panel: https://panel.mallow.ccwu.cc/panel  (admin / 你的面板密码)
 
      VLESS 节点 node:
-     vless://YOUR_UUID@vless.my-github.ccwu.cc:443?encryption=none&security=tls&sni=vless.my-github.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
+     vless://YOUR_UUID@vless.mallow.ccwu.cc:443?encryption=none&security=tls&sni=vless.mallow.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
 
      把 YOUR_UUID 换成你在 VLESS_UUID secret 里填的 UUID
      Replace YOUR_UUID with the UUID from your VLESS_UUID secret
+     域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量
+     Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. 复制 `vless://` 链接，把 `YOUR_UUID` 替换成你的 UUID
+3. 复制 `vless://` 链接，把 `YOUR_UUID` 替换成你的 UUID（域名已经是变量里填的真实域名，不用再替换）
 4. 粘贴到 v2rayN / v2rayNG / Streisand / NekoBox 等客户端即可使用
 
 ### 第六步：验证自动续命（可选）
@@ -192,6 +217,9 @@ flowchart TD
 
 **Q: 日志里节点链接的 UUID 显示为 `***`？**
 A: 这是 GitHub 的 secret 保护机制。用你自己在 `VLESS_UUID` secret 里填的 UUID 替换掉 `YOUR_UUID` 即可。
+
+**Q: 日志里域名显示为 `YOUR_DOMAIN`？**
+A: 去 Settings → Secrets and variables → Actions → Variables 里建 `VLESS_HOST` / `PANEL_HOST` 两个变量，填完整主机名；注意要和 Cloudflare 隧道里的 Public Hostname 一致。
 
 **Q: 客户端测试不通（-1）？**
 A: 检查三点：① UUID 是否替换正确；② 客户端版本是否较新（v2rayN 7.x+）；③ Cloudflare 隧道是否正常连接（看日志）。

@@ -55,10 +55,26 @@ flowchart TD
 
 | Purpose | Address |
 |---------|---------|
-| Node | `vless.my-github.ccwu.cc:443` (VLESS + WebSocket + TLS) |
-| Panel | `https://panel.my-github.ccwu.cc/panel` (username `admin`) |
+| Node | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
+| Panel | `https://panel.mallow.ccwu.cc/panel` (username `admin`) |
 
-> ⚠️ The domains above are examples — replace them with your own.
+> ⚠️ The domains above are examples. To change them, edit the `VLESS_HOST` / `PANEL_HOST` variables in Settings → Secrets and variables → Actions → Variables — no need to edit the workflow file.
+
+## Domain setup
+
+The node and panel domains live in GitHub variables — no need to edit the workflow file:
+
+| Variable | Example value | Description |
+|----------|---------------|-------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Node address (full hostname) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel address (full hostname) |
+
+**How to change**: go to **Settings** → **Secrets and variables** → **Actions** → the **Variables** tab → **New repository variable**, then fill in the name and value. It takes effect on the next workflow run.
+
+**Three things to note**:
+- Each variable holds the **full hostname** (including the subdomain prefix), so the node and the panel can point at different domains — they don't have to share a parent domain
+- The values must match the Public Hostnames you created in the Cloudflare tunnel in step 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053) — if they don't match, the link won't work
+- If a variable is not set, the banner shows a placeholder for that entry (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Detailed setup steps
 
@@ -117,7 +133,7 @@ Detailed steps:
 2. Copy the generated UUID (it looks like `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Be sure to remember this UUID** — it will not appear in plaintext in the workflow logs, and you will need it every time you assemble the node link.
 
-### Step 3: Add Secrets to GitHub
+### Step 3: Add Secrets and Variables to GitHub
 
 1. Open this repository and click the **Settings** tab.
 2. On the left, go to **Secrets and variables** → **Actions**.
@@ -128,6 +144,13 @@ Detailed steps:
    | `CF_TUNNEL_TOKEN` | The Tunnel Token copied in step 1 | Cloudflare tunnel credential |
    | `PANEL_PASSWORD` | The panel password you set | 3x-ui panel login password |
    | `VLESS_UUID` | The UUID generated in step 2 | Node UUID, never changes |
+
+4. Switch to the **Variables** tab, click **New repository variable**, and add two variables (see [Domain setup](#domain-setup) for details):
+
+   | Name | Value | Description |
+   |------|-------|-------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Node address |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Panel address |
 
 ### Step 4: Run the workflow
 
@@ -150,16 +173,18 @@ Detailed steps:
 2. Expand the **Start named Cloudflare tunnel** step and check the log output:
    ```
    ==================================================
-     面板 Panel: https://panel.my-github.ccwu.cc/panel  (admin / 你的密码 your password)
+     面板 Panel: https://panel.mallow.ccwu.cc/panel  (admin / 你的面板密码)
 
      VLESS 节点 node:
-     vless://YOUR_UUID@vless.my-github.ccwu.cc:443?encryption=none&security=tls&sni=vless.my-github.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
+     vless://YOUR_UUID@vless.mallow.ccwu.cc:443?encryption=none&security=tls&sni=vless.mallow.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
 
      把 YOUR_UUID 换成你在 VLESS_UUID secret 里填的 UUID
      Replace YOUR_UUID with the UUID from your VLESS_UUID secret
+     域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量
+     Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Copy the `vless://` link and replace `YOUR_UUID` with your UUID.
+3. Copy the `vless://` link and replace `YOUR_UUID` with your UUID. (The domain is already the real one from your variables — no need to replace it.)
 4. Paste it into v2rayN / v2rayNG / Streisand / NekoBox or other clients and you're good to go.
 
 ### Step 6: Verify the auto keep-alive (optional)
@@ -187,6 +212,9 @@ Detailed steps:
 
 **Q: The UUID in the node link shows as `***` in the logs?**
 A: That's GitHub's secret protection mechanism. Just replace `YOUR_UUID` with the UUID you filled in your `VLESS_UUID` secret.
+
+**Q: The domain in the logs shows as `YOUR_DOMAIN`?**
+A: Go to Settings → Secrets and variables → Actions → Variables and create the `VLESS_HOST` / `PANEL_HOST` variables with the full hostnames; make sure they match the Public Hostnames in your Cloudflare tunnel.
 
 **Q: The client test fails (-1)?**
 A: Check three things: ① whether the UUID was replaced correctly; ② whether the client version is recent enough (v2rayN 7.x+); ③ whether the Cloudflare tunnel is connected properly (check the logs).

@@ -54,8 +54,8 @@ flowchart TD
 
 | Formål | Adresse |
 |------|------|
-| Node | `vless.my-github.ccwu.cc:443`（VLESS + WebSocket + TLS） |
-| Panel | `https://panel.my-github.ccwu.cc/panel`（brukernavn `admin`） |
+| Node | `vless.mallow.ccwu.cc:443`（VLESS + WebSocket + TLS） |
+| Panel | `https://panel.mallow.ccwu.cc/panel`（brukernavn `admin`） |
 
 > ⚠️ Domenene ovenfor er eksempler — bytt dem ut med ditt eget domene.
 
@@ -156,13 +156,15 @@ Detaljerte trinn:
 2. Utvid trinnet **Start named Cloudflare tunnel** og se på loggutdataene:
    ```
    ==================================================
-     Panel Panel: https://panel.my-github.ccwu.cc/panel  (admin / passordet ditt your password)
+     Panel Panel: https://panel.mallow.ccwu.cc/panel  (admin / passordet ditt your password)
 
      VLESS-node node:
-     vless://YOUR_UUID@vless.my-github.ccwu.cc:443?encryption=none&security=tls&sni=vless.my-github.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
+     vless://YOUR_UUID@vless.mallow.ccwu.cc:443?encryption=none&security=tls&sni=vless.mallow.ccwu.cc&type=ws&path=%2Fws#GitHub-3xui
 
      Bytt YOUR_UUID med UUID-en fra VLESS_UUID-secretet ditt
      Replace YOUR_UUID with the UUID from your VLESS_UUID secret
+     域名：去 Settings → Secrets and variables → Actions → Variables 改 VLESS_HOST / PANEL_HOST 变量
+     Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
 3. Kopier `vless://`-lenken, og bytt `YOUR_UUID` med din egen UUID
