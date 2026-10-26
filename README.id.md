@@ -57,7 +57,23 @@ flowchart TD
 | Node | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panel | `https://panel.mallow.ccwu.cc/panel` (nama pengguna `admin`) |
 
-> ⚠️ Domain di atas hanyalah contoh, ganti dengan domain milikmu.
+> ⚠️ Domain di atas hanyalah contoh. Untuk mengubahnya, edit variabel `VLESS_HOST` / `PANEL_HOST` di Settings → Secrets and variables → Actions → Variables — tidak perlu mengedit file workflow.
+
+## Pengaturan domain
+
+Domain node dan panel tersimpan di variabel GitHub — tidak perlu mengedit file workflow:
+
+| Variabel | Nilai contoh | Deskripsi |
+|----------|--------------|-----------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Alamat node (nama host lengkap) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Alamat panel (nama host lengkap) |
+
+**Cara mengubah**: buka **Settings** → **Secrets and variables** → **Actions** → tab **Variables** → **New repository variable**, lalu isi nama dan nilainya. Perubahan berlaku mulai eksekusi workflow berikutnya.
+
+**Tiga hal yang perlu diperhatikan**:
+- Setiap variabel berisi **nama host lengkap** (termasuk awalan subdomain), jadi node dan panel bisa mengarah ke domain yang berbeda — tidak harus memakai domain induk yang sama
+- Nilai harus sama dengan Public Hostname yang kamu buat di tunnel Cloudflare pada langkah 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), kalau tidak, link tidak akan berfungsi
+- Jika suatu variabel belum diatur, banner menampilkan placeholder untuk entri tersebut (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Langkah Konfigurasi Detail
 
@@ -105,7 +121,7 @@ Langkah detail:
 2. Salin UUID yang dihasilkan (seperti `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Pastikan mencatat UUID ini** — tidak akan tampil sebagai teks biasa di log workflow, dan dibutuhkan setiap kali menyusun link node
 
-### Langkah 3: Menambahkan Secrets GitHub
+### Langkah 3: Menambahkan Secrets dan Variables GitHub
 
 1. Masuk ke repo ini, klik tab **Settings**
 2. Di kiri, **Secrets and variables** → **Actions**
@@ -116,6 +132,13 @@ Langkah detail:
    | `CF_TUNNEL_TOKEN` | Tunnel Token yang disalin di langkah 1 | Kredensial tunnel Cloudflare |
    | `PANEL_PASSWORD` | Kata sandi panel yang kamu tetapkan | Kata sandi login panel 3x-ui |
    | `VLESS_UUID` | UUID yang dibuat di langkah 2 | UUID node, tetap tidak berubah |
+
+4. Beralih ke tab **Variables**, klik **New repository variable**, dan tambahkan dua variabel (lihat bagian Pengaturan domain di atas):
+
+   | Name | Nilai | Deskripsi |
+   |------|-------|-----------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Alamat node |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Alamat panel |
 
 ### Langkah 4: Menjalankan workflow
 
@@ -156,7 +179,7 @@ Langkah detail:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Salin link `vless://`, ganti `YOUR_UUID` dengan UUID milikmu
+3. Salin link `vless://`, ganti `YOUR_UUID` dengan UUID milikmu (Domainnya sudah yang asli dari variabelmu — tidak perlu diganti.)
 4. Tempel ke klien seperti v2rayN / v2rayNG / Streisand / NekoBox, lalu siap digunakan
 
 ### Langkah 6: Verifikasi perpanjangan otomatis (opsional)
@@ -184,6 +207,9 @@ Langkah detail:
 
 **Q: UUID pada link node di log tampil sebagai `***`?**
 A: Itu mekanisme perlindungan secret GitHub. Cukup ganti `YOUR_UUID` dengan UUID yang kamu isi di secret `VLESS_UUID`.
+
+**Q: Domain di log tampil sebagai `YOUR_DOMAIN`?**
+A: Buka Settings → Secrets and variables → Actions → Variables dan buat variabel `VLESS_HOST` / `PANEL_HOST` dengan nama host lengkap; pastikan sama dengan Public Hostname di tunnel Cloudflare kamu.
 
 **Q: Tes klien tidak berhasil (-1)?**
 A: Periksa tiga hal: ① apakah UUID diganti dengan benar; ② apakah versi klien cukup baru (v2rayN 7.x+); ③ apakah tunnel Cloudflare terhubung dengan normal (lihat log).
