@@ -57,7 +57,23 @@ flowchart TD
 | Nodo | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panelo | `https://panel.mallow.ccwu.cc/panel` (uzantnomo `admin`) |
 
-> ⚠️ La supraj domajnoj estas ekzemploj, anstataŭigu ilin per via propra domajno.
+> ⚠️ La supraj domajnoj estas ekzemploj. Por ŝanĝi ilin, redaktu la variablojn `VLESS_HOST` / `PANEL_HOST` en Settings → Secrets and variables → Actions → Variables — ne necesas redakti la workflow-dosieron.
+
+## Agordo de domajno
+
+La domajnoj de la nodo kaj la panelo estas en GitHub-variabloj — ne necesas redakti la workflow-dosieron:
+
+| Variablo | Ekzempla valoro | Priskribo |
+|----------|-----------------|-----------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adreso de la nodo (plena gastigantnomo) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adreso de la panelo (plena gastigantnomo) |
+
+**Kiel ŝanĝi**: Iru al **Settings** → **Secrets and variables** → **Actions** → la langeto **Variables** → **New repository variable**, kaj plenigu la nomon kaj valoron. La ŝanĝo validiĝos ĉe la sekva rulo de la workflow.
+
+**Tri rimarkoj**:
+- Ĉiu variablo enhavas la **plenan gastigantnomon** (inkluzive la prefikson de la subdomajno), do la nodo kaj la panelo povas indiki malsamajn domajnojn — ili ne devas havi komunan patran domajnon
+- La valoroj devas kongrui kun la publikaj gastigantnomoj (Public Hostnames) kreitaj en la Cloudflare-tunelo en paŝo 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053); alie la ligilo ne funkcios
+- Se variablo ne estas agordita, la standardo montras lokokupilon por tiu elemento (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Detalaj agordaj paŝoj
 
@@ -116,7 +132,7 @@ Detalaj paŝoj:
 2. Kopiu la generitan UUID (en la formo `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Nepre notu ĉi tiun UUID**, ĝi ne aperos en klara teksto en la protokolo de la laborfluo, kaj vi bezonos ĝin ĉiufoje kiam vi kunmetos la nodan ligilon
 
-### Paŝo 3: Aldoni Secrets en GitHub
+### Paŝo 3: Aldoni Secrets kaj Variables en GitHub
 
 1. Iru al ĉi tiu deponejo kaj alklaku la langeton **Settings**
 2. Maldekstre **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Detalaj paŝoj:
    | `CF_TUNNEL_TOKEN` | La Tunnel Token kopiita en paŝo 1 | Aŭtentigilo de la Cloudflare-tunelo |
    | `PANEL_PASSWORD` | La panela pasvorto kiun vi difinis | Ensaluta pasvorto de la 3x-ui panelo |
    | `VLESS_UUID` | La UUID generita en paŝo 2 | UUID de la nodo, restas senŝanĝa |
+
+4. Iru al la langeto **Variables**, alklaku **New repository variable**, kaj aldonu du variablojn (vidu la sekcion Agordo de domajno supre):
+
+   | Name | Valoro | Priskribo |
+   |------|--------|-----------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Adreso de la nodo |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Adreso de la panelo |
 
 ### Paŝo 4: Ruli la laborfluon
 
@@ -162,7 +185,7 @@ Detalaj paŝoj:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Kopiu la ligilon `vless://` kaj anstataŭigu `YOUR_UUID` per via UUID
+3. Kopiu la ligilon `vless://` kaj anstataŭigu `YOUR_UUID` per via UUID (La domajno jam estas la vera el viaj variabloj — ne necesas anstataŭigi ĝin.)
 4. Algluu ĝin en v2rayN / v2rayNG / Streisand / NekoBox ktp. por uzi
 
 ### Paŝo 6: Kontroli la aŭtomatan renovigon (nedeviga)
@@ -190,6 +213,9 @@ Detalaj paŝoj:
 
 **Q: La UUID en la noda ligilo aperas kiel `***` en la protokolo?**
 A: Tio estas la sekreta protekta mekanismo de GitHub. Anstataŭigu `YOUR_UUID` per la UUID kiun vi metis en la `VLESS_UUID` sekreton.
+
+**Q: La domajno aperas kiel `YOUR_DOMAIN` en la protokolo?**
+A: Iru al Settings → Secrets and variables → Actions → Variables kaj kreu la variablojn `VLESS_HOST` / `PANEL_HOST` kun la plenaj gastigantnomoj; certigu, ke ili kongruas kun la publikaj gastigantnomoj en via Cloudflare-tunelo.
 
 **Q: La klienta testo malsukcesas (-1)?**
 A: Kontrolu tri aferojn: ① ĉu la UUID estas ĝuste anstataŭigita; ② ĉu la klienta versio estas sufiĉe nova (v2rayN 7.x+); ③ ĉu la Cloudflare-tunelo estas ĝuste konektita (rigardu la protokolon).
