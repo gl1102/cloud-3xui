@@ -57,7 +57,23 @@ flowchart TD
 | Knoten | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panel | `https://panel.mallow.ccwu.cc/panel` (Benutzername `admin`) |
 
-> ⚠️ Die obigen Domains sind Beispiele – ersetze sie durch deine eigene Domain.
+> ⚠️ Die obigen Domains sind Beispiele. Um sie zu ändern, bearbeiten Sie die Variablen `VLESS_HOST` / `PANEL_HOST` unter Settings → Secrets and variables → Actions → Variables — die Workflow-Datei muss nicht bearbeitet werden.
+
+## Domain-Einrichtung
+
+Die Domains von Knoten und Panel liegen in GitHub-Variablen — die Workflow-Datei muss nicht bearbeitet werden:
+
+| Variable | Beispielwert | Beschreibung |
+|----------|--------------|--------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Knotenadresse (vollständiger Hostname) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneladresse (vollständiger Hostname) |
+
+**So ändern Sie sie**: Gehen Sie zu **Settings** → **Secrets and variables** → **Actions** → Registerkarte **Variables** → **New repository variable** und tragen Sie Name und Wert ein. Die Änderung gilt ab dem nächsten Workflow-Lauf.
+
+**Drei Hinweise**:
+- Jede Variable enthält den **vollständigen Hostnamen** (einschließlich des Subdomain-Präfixes), sodass Knoten und Panel auf unterschiedliche Domains zeigen können — sie müssen keine gemeinsame übergeordnete Domain haben
+- Die Werte müssen mit den öffentlichen Hostnamen (Public Hostnames) übereinstimmen, die Sie in Schritt 1 im Cloudflare-Tunnel erstellt haben (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053), sonst funktioniert der Link nicht
+- Wenn eine Variable nicht gesetzt ist, zeigt das Banner für den betreffenden Eintrag einen Platzhalter an (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Ausführliche Konfigurationsschritte
 
@@ -116,7 +132,7 @@ Detaillierte Schritte:
 2. Kopiere die generierte UUID (in der Form `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Notiere dir diese UUID unbedingt**, sie wird im Workflow-Log nicht im Klartext angezeigt und du brauchst sie jedes Mal, wenn du den Knoten-Link zusammensetzt
 
-### Schritt 3: Secrets auf GitHub hinzufügen
+### Schritt 3: Secrets und Variables auf GitHub hinzufügen
 
 1. Öffne dieses Repository und klicke auf den Reiter **Settings**
 2. Links **Secrets and variables** → **Actions**
@@ -127,6 +143,13 @@ Detaillierte Schritte:
    | `CF_TUNNEL_TOKEN` | Der in Schritt 1 kopierte Tunnel Token | Anmeldedaten für den Cloudflare-Tunnel |
    | `PANEL_PASSWORD` | Dein festgelegtes Panel-Passwort | Login-Passwort für das 3x-ui-Panel |
    | `VLESS_UUID` | Die in Schritt 2 generierte UUID | UUID des Knotens, bleibt unverändert |
+
+4. Wechseln Sie zur Registerkarte **Variables**, klicken Sie auf **New repository variable** und fügen Sie zwei Variablen hinzu (siehe Abschnitt Domain-Einrichtung oben):
+
+   | Name | Wert | Beschreibung |
+   |------|------|--------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Knotenadresse |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Paneladresse |
 
 ### Schritt 4: Workflow ausführen
 
@@ -162,7 +185,7 @@ Detaillierte Schritte:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Kopiere den `vless://`-Link und ersetze `YOUR_UUID` durch deine UUID
+3. Kopiere den `vless://`-Link und ersetze `YOUR_UUID` durch deine UUID (Die Domain ist bereits die echte aus Ihren Variablen — sie muss nicht ersetzt werden.)
 4. Füge ihn in v2rayN / v2rayNG / Streisand / NekoBox usw. ein und nutze ihn
 
 ### Schritt 6: Automatische Verlängerung prüfen (optional)
@@ -190,6 +213,9 @@ Detaillierte Schritte:
 
 **Q: Die UUID im Knoten-Link wird im Log als `***` angezeigt?**
 A: Das ist der Secret-Schutzmechanismus von GitHub. Ersetze `YOUR_UUID` durch die UUID, die du in das `VLESS_UUID`-Secret eingetragen hast.
+
+**Q: Die Domain wird im Log als `YOUR_DOMAIN` angezeigt?**
+A: Gehen Sie zu Settings → Secrets and variables → Actions → Variables und erstellen Sie die Variablen `VLESS_HOST` / `PANEL_HOST` mit den vollständigen Hostnamen; stellen Sie sicher, dass sie mit den öffentlichen Hostnamen in Ihrem Cloudflare-Tunnel übereinstimmen.
 
 **Q: Der Client-Test schlägt fehl (-1)?**
 A: Prüfe drei Dinge: ① ob die UUID korrekt ersetzt wurde; ② ob die Client-Version aktuell genug ist (v2rayN 7.x+); ③ ob der Cloudflare-Tunnel korrekt verbunden ist (siehe Log).
