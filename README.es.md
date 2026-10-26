@@ -58,7 +58,23 @@ flowchart TD
 | Nodo | `vless.mallow.ccwu.cc:443` (VLESS + WebSocket + TLS) |
 | Panel | `https://panel.mallow.ccwu.cc/panel` (usuario `admin`) |
 
-> ⚠️ Los dominios anteriores son ejemplos; reemplácelos con los suyos.
+> ⚠️ Los dominios anteriores son ejemplos. Para cambiarlos, edita las variables `VLESS_HOST` / `PANEL_HOST` en Settings → Secrets and variables → Actions → Variables, no hace falta editar el archivo del workflow.
+
+## Configuración del dominio
+
+Los dominios del nodo y del panel están en variables de GitHub, no hace falta editar el archivo del workflow:
+
+| Variable | Valor de ejemplo | Descripción |
+|----------|------------------|-------------|
+| `VLESS_HOST` | `vless.mallow.ccwu.cc` | Dirección del nodo (nombre de host completo) |
+| `PANEL_HOST` | `panel.mallow.ccwu.cc` | Dirección del panel (nombre de host completo) |
+
+**Cómo cambiarlo**: ve a **Settings** → **Secrets and variables** → **Actions** → la pestaña **Variables** → **New repository variable**, y completa el nombre y el valor. Tendrá efecto en la próxima ejecución del workflow.
+
+**Tres cosas a tener en cuenta**:
+- Cada variable contiene el **nombre de host completo** (incluido el prefijo del subdominio), así que el nodo y el panel pueden apuntar a dominios distintos, no tienen que compartir el mismo dominio padre
+- Los valores deben coincidir con los nombres de host públicos (Public Hostnames) que creaste en el túnel de Cloudflare en el paso 1 (`vless` → 127.0.0.1:8080, `panel` → 127.0.0.1:2053); si no coinciden, el enlace no funcionará
+- Si una variable no está configurada, el banner muestra un marcador de posición para ese elemento (`vless.YOUR_DOMAIN` / `panel.YOUR_DOMAIN`)
 
 ## Pasos detallados de configuración
 
@@ -117,7 +133,7 @@ Pasos detallados:
 2. Copie el UUID generado (se ve así: `cbfc229f-9d34-4fef-9990-8baa82a7327b`)
 3. **Asegúrese de guardar este UUID**: no aparecerá en texto plano en los registros del workflow y lo necesitará cada vez que construya el enlace del nodo.
 
-### Paso 3: Añadir Secrets en GitHub
+### Paso 3: Añadir Secrets y Variables en GitHub
 
 1. Abra este repositorio y haga clic en la pestaña **Settings**.
 2. A la izquierda, vaya a **Secrets and variables** → **Actions**.
@@ -128,6 +144,13 @@ Pasos detallados:
    | `CF_TUNNEL_TOKEN` | El Tunnel Token copiado en el paso 1 | Credencial del túnel de Cloudflare |
    | `PANEL_PASSWORD` | La contraseña del panel que usted defina | Contraseña de acceso al panel 3x-ui |
    | `VLESS_UUID` | El UUID generado en el paso 2 | UUID del nodo, no cambia |
+
+4. Cambia a la pestaña **Variables**, haz clic en **New repository variable** y añade dos variables (ver la sección Configuración del dominio más arriba):
+
+   | Name | Valor | Descripción |
+   |------|-------|-------------|
+   | `VLESS_HOST` | `vless.mallow.ccwu.cc` | Dirección del nodo |
+   | `PANEL_HOST` | `panel.mallow.ccwu.cc` | Dirección del panel |
 
 ### Paso 4: Ejecutar el workflow
 
@@ -163,7 +186,7 @@ Pasos detallados:
      Domain: set the VLESS_HOST / PANEL_HOST variables in Settings → Secrets and variables → Actions → Variables
    ==================================================
    ```
-3. Copie el enlace `vless://` y reemplace `YOUR_UUID` con su UUID.
+3. Copie el enlace `vless://` y reemplace `YOUR_UUID` con su UUID. (El dominio ya es el real, tomado de tus variables; no hace falta reemplazarlo.)
 4. Péguelo en v2rayN / v2rayNG / Streisand / NekoBox u otros clientes y listo.
 
 ### Paso 6: Verificar la reconexión automática (opcional)
@@ -191,6 +214,9 @@ Pasos detallados:
 
 **P: ¿El UUID del enlace del nodo aparece como `***` en los registros?**
 R: Es el mecanismo de protección de secretos de GitHub. Simplemente reemplace `YOUR_UUID` con el UUID que puso en su secret `VLESS_UUID`.
+
+**P: ¿El dominio aparece como `YOUR_DOMAIN` en los registros?**
+R: Ve a Settings → Secrets and variables → Actions → Variables y crea las variables `VLESS_HOST` / `PANEL_HOST` con los nombres de host completos; asegúrate de que coincidan con los nombres de host públicos de tu túnel de Cloudflare.
 
 **P: ¿La prueba del cliente falla (-1)?**
 R: Compruebe tres cosas: ① si el UUID se reemplazó correctamente; ② si la versión del cliente es lo bastante reciente (v2rayN 7.x+); ③ si el túnel de Cloudflare está conectado correctamente (revise los registros).
